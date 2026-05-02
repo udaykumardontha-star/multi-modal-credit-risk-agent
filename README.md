@@ -1,69 +1,82 @@
 # Multi-Modal Credit Risk Analyst Agent
 
-An agentic system that accepts uploaded financial documents, automatically extracts structured financial data using a vision LLM, performs ratio analysis and risk scoring, and generates a formatted credit memo PDF.
+Upload a company's financial documents (PDF, scanned images, or CSV) and the system automatically extracts financials, runs ratio analysis, and outputs a credit memo with an approval decision — no manual steps.
 
-## Architecture
+Tested on mock data — sample output below.
+
+| Company | Score | Decision |
+|---|---|---|
+| Rajesh Industries | 74/100 | Approved |
+| Priya Textiles | 58/100 | Refer to analyst |
+| Suresh Pharma | 41/100 | Rejected |
+
+Sample credit memo: [sample_output/sample_credit_memo.pdf](sample_output/sample_credit_memo.pdf)
+
+---
+
+## How it works
 
 ```text
-Upload Files -> Ingestion -> Extraction (LLM) -> Analysis & Ratios -> Scoring -> Memo Generation (PDF) -> Result!
+Upload Files → Ingestion → Extraction (GPT-4o Vision) → Ratio Analysis → Risk Scoring → Credit Memo PDF
 ```
 
 ## Features
-- **Multi-Modal Support**: Analyzes PDFs, images (PNG, JPG, WEBP), and CSV/Excel files.
-- **Zero Human-in-the-loop**: Fully automated processing from ingestion to decision.
-- **Advanced Ratio Analysis**: Automatically calculates 12 key financial ratios including the Altman Z-Score.
-- **Weighted Risk Scoring**: Scorecard-based decision rules (APPROVE / REFER / REJECT).
-- **Credit Memo Generation**: Generates a professional PDF document with key figures, ratios, and LLM-generated analyst commentary.
-- **Asynchronous Processing**: Non-blocking API using Celery and Redis.
+
+- Accepts PDFs, scanned balance sheet images, and CSV files in a single upload
+- Extracts financial figures using GPT-4o vision — works even on scanned documents
+- Computes 12 financial ratios including Altman Z-Score
+- Outputs APPROVE / REFER / REJECT with a weighted composite score
+- Generates a professional credit memo PDF with analyst commentary
+- Fully async — built on Celery + Redis so multiple documents process in parallel
 
 ## Tech Stack
+
 | Component | Technology |
-| --- | --- |
-| **Backend Framework** | FastAPI |
-| **Agent Orchestration** | LangGraph, LangChain |
-| **LLM Provider** | OpenAI (GPT-4o) / Google Gemini |
-| **Task Queue** | Celery, Redis |
-| **PDF Generation** | WeasyPrint, Jinja2 |
-| **Frontend Framework** | React (Vite), TypeScript |
-| **Styling** | Tailwind CSS |
+|---|---|
+| Backend | FastAPI |
+| Agent Orchestration | LangGraph, LangChain |
+| LLM | OpenAI GPT-4o / Google Gemini |
+| Task Queue | Celery, Redis |
+| PDF Generation | WeasyPrint, Jinja2 |
+| Frontend | React (Vite), TypeScript, Tailwind CSS |
 
 ## Quickstart
 
-1. **Clone the repository** (or download files)
-2. **Configure Environment Variables**:
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your OPENAI_API_KEY
-   ```
-3. **Run with Docker Compose**:
-   ```bash
-   docker compose up --build
-   ```
-4. **Access the Application**:
+1. Clone the repo
+2. Copy and configure environment variables:
+```bash
+cp .env.example .env
+# Add your OPENAI_API_KEY
+```
+3. Run with Docker:
+```bash
+docker compose up --build
+```
+4. Open the app:
    - Frontend: `http://localhost:5173`
-   - Backend API Docs: `http://localhost:8000/docs`
+   - API docs: `http://localhost:8000/docs`
 
 ## API Reference
+
 | Method | Endpoint | Description |
-| --- | --- | --- |
-| `POST` | `/api/v1/analyze` | Upload financial documents (multipart/form-data) |
-| `GET` | `/api/v1/results/{job_id}` | Poll job status and retrieve final results |
+|---|---|---|
+| `POST` | `/api/v1/analyze` | Upload financial documents |
+| `GET` | `/api/v1/results/{job_id}` | Poll job status and get results |
 | `GET` | `/health` | Health check |
 
-## How Risk Scoring Works
-The system calculates a composite score (0-100) using 12 ratios with weights biased toward solvency and leverage:
-- **Altman Z-Score**: 25% (Scores < 1.81 auto-reject)
-- **Interest Coverage**: 20%
-- **Debt-to-Equity**: 15%
-- **Current Ratio**: 15%
-- **EBITDA Margin**: 10%
-- **Net Margin**: 10%
-- **ROA**: 5%
+## Risk Scoring
 
-**Decision Thresholds:**
-- `>= 70`: APPROVE
-- `45 - 69`: REFER
-- `< 45`: REJECT
+Composite score (0-100) calculated from 12 ratios:
+
+- Altman Z-Score — 25% weight (below 1.81 auto-rejects)
+- Interest Coverage — 20%
+- Debt-to-Equity — 15%
+- Current Ratio — 15%
+- EBITDA Margin — 10%
+- Net Margin — 10%
+- ROA — 5%
+
+Thresholds: 70+ → Approve, 45-69 → Refer, below 45 → Reject
 
 ## Testing
 
@@ -74,4 +87,5 @@ pytest tests/
 ```
 
 ## License
+
 MIT
