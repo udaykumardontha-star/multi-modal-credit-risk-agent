@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 40px; color: #333; }
+    h1 { color: #1e3a8a; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; }
+    h2 { color: #1e40af; margin-top: 30px; }
+    .badge { padding: 8px 16px; border-radius: 4px; font-weight: bold; color: white; display: inline-block; }
+    .badge-APPROVE { background-color: #16a34a; }
+    .badge-REFER { background-color: #d97706; }
+    .badge-REJECT { background-color: #dc2626; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    th { background-color: #f3f4f6; }
+    .footer { margin-top: 50px; font-size: 0.8em; color: #6b7280; text-align: center; border-top: 1px solid #e5e7eb; padding-top: 20px;}
+    .risk-flags { background-color: #fee2e2; padding: 15px; border-left: 4px solid #dc2626; margin-top: 15px;}
+</style>
+</head>
+<body>
+
+    <h1>Credit Risk Analysis Memo</h1>
+    <p><strong>Date:</strong> {{ statements[0].period if statements else 'N/A' }}</p>
+    <p><strong>Company:</strong> {{ statements[0].company_name if statements else 'Unknown' }}</p>
+    <p><strong>Analyst:</strong> AI Agent (Job Ref: {{ job_id }})</p>
+
+    <h2>1. Executive Summary</h2>
+    <p><strong>Decision:</strong> <span class="badge badge-{{ risk_score.decision }}">{{ risk_score.decision }}</span></p>
+    <p><strong>Composite Score:</strong> {{ "%.1f"|format(risk_score.composite_score) }} / 100</p>
+    <p><strong>Confidence:</strong> {{ "%.1f"|format(risk_score.confidence) }}%</p>
+    <p><strong>Rationale:</strong> {{ risk_score.rationale }}</p>
+
+    <h2>2. Financial Highlights</h2>
+    <table>
+        <tr><th>Metric</th><th>Value</th></tr>
+        {% if statements %}
+        <tr><td>Revenue</td><td>{{ statements[0].currency }} {{ statements[0].revenue }}</td></tr>
+        <tr><td>Net Income</td><td>{{ statements[0].currency }} {{ statements[0].net_income }}</td></tr>
+        <tr><td>Total Assets</td><td>{{ statements[0].currency }} {{ statements[0].total_assets }}</td></tr>
+        <tr><td>Total Liabilities</td><td>{{ statements[0].currency }} {{ statements[0].total_liabilities }}</td></tr>
+        {% endif %}
+    </table>
+
+    <h2>3. Ratio Analysis</h2>
+    <table>
+        <tr><th>Ratio</th><th>Value</th></tr>
+        <tr><td>Current Ratio</td><td>{{ "%.2f"|format(ratios.current_ratio) if ratios.current_ratio != None else 'N/A' }}</td></tr>
+        <tr><td>Debt to Equity</td><td>{{ "%.2f"|format(ratios.debt_to_equity) if ratios.debt_to_equity != None else 'N/A' }}</td></tr>
+        <tr><td>Interest Coverage</td><td>{{ "%.2f"|format(ratios.interest_coverage) if ratios.interest_coverage != None else 'N/A' }}</td></tr>
+        <tr><td>Net Margin</td><td>{{ "%.2f"|format(ratios.net_margin * 100) if ratios.net_margin != None else 'N/A' }}%</td></tr>
+        <tr><td>Return on Assets</td><td>{{ "%.2f"|format(ratios.return_on_assets * 100) if ratios.return_on_assets != None else 'N/A' }}%</td></tr>
+    </table>
+
+    <h2>4. Risk Assessment</h2>
+    <p><strong>Altman Z-Score:</strong> {{ "%.2f"|format(ratios.altman_z_score) if ratios.altman_z_score != None else 'N/A' }}</p>
+    {% if flags %}
+    <div class="risk-flags">
+        <strong>Risk Flags Identified:</strong>
+        <ul>
+            {% for flag in flags %}
+            <li>{{ flag }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <h2>5. Analyst Commentary</h2>
+    <p>{{ commentary }}</p>
+
+    <div class="footer">
+        <p>This report was generated automatically by the Multi-Modal Credit Risk Analyst Agent. No human review has been performed. Please verify all figures and decisions.</p>
+    </div>
+
+</body>
+</html>
