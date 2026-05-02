@@ -1,0 +1,6 @@
+name,amount,document_type,status,score,decision
+Rajesh Industries Pvt. Ltd.,50,Annual Report PDF,Complete,74,APPROVE
+Priya Textiles Ltd.,25,Balance Sheet Image,Complete,58,REFER
+Suresh Pharma Pvt. Ltd.,100,CSV Financial Data,Complete,41,REJECT
+Ananya Exports Ltd.,75,Annual Report PDF,Complete,71,APPROVE
+Vikram Steel Works,30,Balance Sheet Image,Complete,49,REFER
